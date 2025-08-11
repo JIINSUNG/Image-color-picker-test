@@ -1,18 +1,20 @@
 import React, {  useRef, useState } from 'react';
 import './App.css';
+import { ImageColorPicker } from 'react-image-color-picker';
 
-const CANVAS_WIDTH = 240;
-const CANVAS_HEIGHT = 240;
 
-const ImageColorPickerCanvas: React.FC = () => {
+const CANVAS_WIDTH = 320;
+const CANVAS_HEIGHT = 320;
+
+const ImageColorPickerCanvas = ({imageSrc, setImageSrc} : {imageSrc: string, setImageSrc: React.Dispatch<React.SetStateAction<string>>}) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const imageRef = useRef<HTMLImageElement | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
 
 
 
   const convertColorToHex = (color: string | null) => {
-    if (color && color.startsWith('#') && color.length === 7) {
+    if (color && color.startsWith('#') && color.length === 7) { 
       const r = parseInt(color.slice(1, 3), 16);
       const g = parseInt(color.slice(3, 5), 16);
       const b = parseInt(color.slice(5, 7), 16);
@@ -73,7 +75,6 @@ const ImageColorPickerCanvas: React.FC = () => {
     );
   };
 
-
 const handleCanvasEvent = (e: React.MouseEvent | React.TouchEvent) => {
   e.preventDefault();
 
@@ -109,7 +110,7 @@ const handleCanvasEvent = (e: React.MouseEvent | React.TouchEvent) => {
 };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', gap: '16px', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px', gap: '16px', fontFamily: 'Arial, sans-serif' }}>
       <h3 style={{ color: '#333', fontSize: '24px', paddingBottom: '16px' }}>🎨 Image Color Picker</h3>
       <input
         type="file"
@@ -141,9 +142,8 @@ const handleCanvasEvent = (e: React.MouseEvent | React.TouchEvent) => {
       )}
       {imageSrc  && (
         <div
-          style={{
-            width: CANVAS_WIDTH,
-            height: CANVAS_HEIGHT,
+          style={{            width: '100%',
+            aspectRatio: '1',
             overflow: 'hidden',
             position: 'relative',
             borderRadius: '8px',
@@ -151,9 +151,10 @@ const handleCanvasEvent = (e: React.MouseEvent | React.TouchEvent) => {
           }}
         >
           <img
+            ref={imageRef}
             src={imageSrc}
             alt="Uploaded"
-            style={{ display: 'none' }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: "none" }}
             onLoad={handleImageLoad}
           />
           <canvas
@@ -163,7 +164,7 @@ const handleCanvasEvent = (e: React.MouseEvent | React.TouchEvent) => {
               cursor: 'crosshair',
               border: '1px solid #ccc',
               width: '100%',
-              height: '100%',
+              aspectRatio: "1/1",
               borderRadius: '8px',
             }}
           />
@@ -196,17 +197,38 @@ const handleCanvasEvent = (e: React.MouseEvent | React.TouchEvent) => {
   );
 };
 
+const ImageColorPickerLibrary = ({imageSrc} : {imageSrc: string}) => {
+  const [selectedColor, setSelectedColor] = useState<string>("");
+  const handleColorPick = (color: string) => {
+    setSelectedColor(color);
+  };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", margin: "auto"}}>
+      <h3>Image Color Picker Library Demo</h3>
+      {imageSrc && <ImageColorPicker
+        onColorPick={handleColorPick}
+        imgSrc={imageSrc}
+        zoom={1}
+      />}
+      <span>selected Color : {selectedColor}</span>
+    </div>
+  );
+}
+
 export default function App() {
+  const [imageSrc, setImageSrc] = useState<string>("");
   return (
     <div
       style={{
         display: 'flex',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
       }}
     >
-      <ImageColorPickerCanvas />
+      <ImageColorPickerCanvas imageSrc={imageSrc} setImageSrc={setImageSrc} />
+      <ImageColorPickerLibrary imageSrc={imageSrc} />
     </div>
   );
 }
